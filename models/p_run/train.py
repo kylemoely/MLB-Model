@@ -1,6 +1,6 @@
 import lightgbm as lgb
 
-def train_p_out(train_data, test_data):
+def train_p_run(train_data, test_data):
     params = {
         "objective": "binary",
         "metric": ["binary_logloss", "auc"],
