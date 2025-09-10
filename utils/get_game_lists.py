@@ -1,5 +1,4 @@
 import statsapi
-import json
 
 def get_game_list(year):
     season = statsapi.get("season", params={"seasonId":year, "sportId":1})
