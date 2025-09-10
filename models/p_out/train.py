@@ -19,3 +19,5 @@ def train_p_out(train_data, test_data):
         valid_sets=[train_data, test_data],
         num_boost_round=1000
     )
+
+    return p_out
