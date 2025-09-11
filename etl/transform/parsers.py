@@ -128,59 +128,42 @@ def parse_plays(plays):
 
             first_base_runner, second_base_runner, third_base_runner = det_base_runners(runners, batter_id, pitch_index)
 
+            first_runner = None
             for runner in runners:
                 details = runner.get("details",{})
                 movement = runner.get("movement",{})
-                if details.get("playIndex")==pitch_index[-1]: #stop writing -1 everywhere lets just save the last index
+                play_index = details.get("playIndex")
+                is_out = movement.get("isOut")
+                if play_index!=pitch_index[-1]:
+                    pickoff_out = is_out
+                elif first_runner is None: #stop writing -1 everywhere lets just save the last index
                     first_runner = runner
+                    credits = runner.get("credits",[])
+                    for credit in credits:
+                        credit_type = credit.get("credit","")
+                        position_code = int(credit.get("position",{}).get("code",0))
+                        player_id = credits.get("player",{}).get("id",0)
+                        if "error" in credit_type:
+                            errer = position_code
+                            errer_id = player_id
+                        if fielder is None and credit_type in ["f_assist","f_fielded_ball"]:
+                            fielder = position_code
+                            fielder_id = player_id
+                        elif credit_type=="f_putout":
+                            outer = position_code
+                            outer_id = player_id
+                            out = True
                 if details.get("runner",{}).get("id")==batter_id and movement.get("start") is None:
-                    batter_runner = runner
-                    is_out = movement.get("isOut")
-                    end = movement.get("end")
+                    batter_end = movement.get("end")
+                    if is_out==False and event_type!="field_error" and "fielders_choice" not in event_type:
+                        is_hit = True
+                        bases = {"1B":1,"2B":2,"3B":3}[batter_end]
                     break
 
-            if is_out==False and event_type!="field_error" and "fielders_choice" not in event_type:
-                is_hit = True
-                bases = {"1B":1,"2B":2,"3B":3}[end]
-                    
-
-        bases = 0
-        is_hit = False
-        earned_runs = 0
-        base_runners = {}
-        if runners:
-            for runner in runners:                                
-                if ("pickoff" in movement_event_type and "f_putout" in credit_types) or "caught" in movement_event_type:
-                    pickoff_out = True
-                    continue
-                
-                if any([word in movement_event_type for word in ["pickoff","stolen","wild","catcher_interf"]]) or "f_interference" in credit_types or len(credits)==0 or not analyze_credits:
-                    continue
-
-                for i in range(len(credits)):
-                    credit_type = credit_types[i]
-                    position_code = credits[i].get("position",{}).get("code",0)
-                    player_id = credits[i].get("player",{}).get("id",0)
-                    if "error" in credit_type:
-                        errer = int(position_code)
-                        errer_id = player_id
-                    if fielder is None and credit_type in ["f_assist","f_fielded_ball"]:
-                        fielder = int(position_code)
-                        fielder_id = player_id
-                    elif credit_type=="f_putout":
-                        outer = int(position_code)
-                        outer_id = player_id
-                        out = True
-                if (fielder is not None or outer is not None) and out==has_out:
-                    analyze_credits = False
         if fieldable_play:
             if (fielder is None and errer is not None):
                 fielder = errer
                 fielder_id = errer_id
-        base_runner_values = base_runners.values()
-        first_base_runner = "1B" in base_runner_values
-        second_base_runner = "2B" in base_runner_values
-        third_base_runner = "3B" in base_runner_values
         results.append({
             "batter_id": batter_id,
             "pitcher_id": pitcher_id,
