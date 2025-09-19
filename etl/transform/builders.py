@@ -1,6 +1,6 @@
 import pandas as pd
 
-def builder_plate_appearances(plays):
+def builder_plate_appearances(plays, gamepK, date):
 
     columns = ["batter_id","pitcher_id","inning","event_type","is_at_bat","is_walk","is_sac","is_hit","bases"]
     records = []
@@ -8,10 +8,12 @@ def builder_plate_appearances(plays):
         records.append([play[col] for col in columns])
 
     df = pd.DataFrame(records, columns=columns)
+    df["gamepk"] = gamePk
+    df["date"] = date
 
     return df
 
-def builder_pitcher_innings(plays):
+def builder_pitcher_innings(plays,gamePk, date):
 
     columns = ["pitcher_id","inning","hits_allowed","walks_allowed","earned_runs","outs"]
     records = []
@@ -36,6 +38,8 @@ def builder_pitcher_innings(plays):
         earned_runs += play["earned_runs"]
         outs += play["outs"]
     df = pd.DataFrame(records, columns=columns)
+    df["gamepk"] = gamePk
+    df["date"] = date
 
     return df
 def builder_fieldable_plays(plays,gamePk,date):
