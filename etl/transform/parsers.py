@@ -38,6 +38,7 @@ def det_earned_runs(runners,pitcher_id,results):
                     if responsible_pitcher == results[i]["pitcher_id"]:
                         results[i]["earned_runs"] += 1
                         break
+    return earned_runs
 
 def det_is_at_bat(event_type):
     if any([event_type in ["balk","catcher_interf","hit_by_pitch","walk","intent_walk","other_out","wild_pitch"],"caught_stealing" in event_type, "pickoff" in event_type, "stolen" in event_type, "sac" in event_type]):
@@ -47,14 +48,7 @@ def det_is_at_bat(event_type):
 
 def parse_plays(plays):
     results = []
-
-    num_bases = {
-        "1B": 1,
-        "2B": 2,
-        "3B": 3,
-        "score": 4
-    }
-
+    
     for play in plays:
 
         # references
@@ -66,7 +60,7 @@ def parse_plays(plays):
         runners = play.get("runners",[])
         description = result.get("description","")
         hit_data = last_pitch.get("hitData",{})
-        is_in_play = last_pitch.get("isInPlay")
+        is_in_play = last_pitch.get("details",{}).get("isInPlay")
 
         # quick facts
         batter_id = matchup.get("batter",{}).get("id")
@@ -90,31 +84,13 @@ def parse_plays(plays):
         is_at_bat = det_is_at_bat(event_type)
 
         # play data
-        outs = sum([runner.get("movement",{}).get("isOut",False) for runner in runners])
+        outs = sum([True if runner.get("movement",{}).get("isOut") else False for runner in runners])
         earned_runs = det_earned_runs(runners, pitcher_id, results)
         is_hit = False
         bases = 0
         
         if not is_in_play:
-            location,
-            launch_speed,
-            launch_angle,
-            total_distance,
-            trajectory,
-            hardness,
-            coord_x,
-            coord_y,
-            first_base_runner,
-            second_base_runner,
-            third_base_runner,
-            fielder,
-            fielder_id,
-            outer,
-            outer_id,
-            errer,
-            errer_id,
-            out,
-            pickoff_out = [None] * 19
+            location,launch_speed,launch_angle,total_distance,trajectory,hardness,coord_x,coord_y,first_base_runner,second_base_runner,third_base_runner,fielder,fielder_id,outer,outer_id,errer,errer_id,out,pickoff_out = [None] * 19
             
         else:
             launch_speed = hit_data.get("launchSpeed")
@@ -125,6 +101,8 @@ def parse_plays(plays):
             coordinates = hit_data.get("coordinates", {})
             coord_x = coordinates.get("coordX")
             coord_y = coordinates.get("coordY")
+            out = False
+            pickoff_out = False
 
             first_base_runner, second_base_runner, third_base_runner = det_base_runners(runners, batter_id, pitch_index)
 
@@ -139,10 +117,16 @@ def parse_plays(plays):
                 elif first_runner is None: #stop writing -1 everywhere lets just save the last index
                     first_runner = runner
                     credits = runner.get("credits",[])
+                    fielder=  None
+                    errer = None
+                    outer = None
+                    fielder_id = None
+                    errer_id = None
+                    outer_id = None
                     for credit in credits:
                         credit_type = credit.get("credit","")
                         position_code = int(credit.get("position",{}).get("code",0))
-                        player_id = credits.get("player",{}).get("id",0)
+                        player_id = credit.get("player",{}).get("id",0)
                         if "error" in credit_type:
                             errer = position_code
                             errer_id = player_id
@@ -157,7 +141,7 @@ def parse_plays(plays):
                     batter_end = movement.get("end")
                     if is_out==False and event_type!="field_error" and "fielders_choice" not in event_type:
                         is_hit = True
-                        bases = {"1B":1,"2B":2,"3B":3}[batter_end]
+                        bases = {"1B":1,"2B":2,"3B":3, "score":4}[batter_end]
                     break
 
         if fieldable_play:
