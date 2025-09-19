@@ -38,3 +38,14 @@ def builder_pitcher_innings(plays):
     df = pd.DataFrame(records, columns=columns)
 
     return df
+def builder_fieldable_plays(plays,gamePk,date):
+    columns = ["launch_speed","launch_angle","total_distance","trajectory","hardness","location","coord_x","coord_y","fielder","fielder_id","outer","outer_id", "errer","errer_id","out","pickoff_out","has_out","has_score","first_base_runner","second_base_runner","third_base_runner","num_outs"]
+    records = []
+    for play in plays:
+        if play["fieldable_play"]:
+            records.append([play[col] for col in columns] + [gamePk,date])
+    df = pd.DataFrame(records, columns=columns)
+    df["gamepk"] = gamePk
+    df["date"] = date
+
+    return df
