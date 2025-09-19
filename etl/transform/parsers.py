@@ -13,7 +13,7 @@ def det_base_runners(runners, batter_id, pitch_index):
                 base_runners[runner_id] = start
             elif start < base_runners[runner_id]:
                 base_runners[runner_id] = start
-            if play_index!=pitch_index[-1] and not is_out:
+            if play_index!=pitch_index and not is_out:
                 base_runners[runner_id] = end
     vals = base_runners.values()
     first_base = "1B" in vals
@@ -46,8 +46,71 @@ def det_is_at_bat(event_type):
     else:
         return True
 
-def parse_plays(plays):
+def process_fielding(runners, has_out, pitch_index):
+    fielder=  None
+    errer = None
+    outer = None
+    fielder_id = None
+    errer_id = None
+    outer_id = None
+    out = False
+
+    for runner in runners:
+        details = runner.get("details",{})
+        movement = runner.get("movement",{})
+        play_index = details.get("playIndex")
+        is_out = movement.get("isOut")
+        if play_index==pitch_index:
+            credits = runner.get("credits",[])
+            for credit in credits:
+                credit_type = credit.get("credit","")
+                position_code = int(credit.get("position",{}).get("code",0))
+                player_id = credit.get("player",{}).get("id",0)
+                if "error" in credit_type:
+                    errer = position_code
+                    errer_id = player_id
+                if fielder is None and credit_type in ["f_assist","f_fielded_ball"]:
+                    fielder = position_code
+                    fielder_id = player_id
+                elif credit_type=="f_putout":
+                    outer = position_code
+                    outer_id = player_id
+                    out = True
+        if (fielder is not None or outer is not None) and has_out==out:
+            break
+
+    return fielder,fielder_id,errer,errer_id,outer,outer_id,out
+
+def det_is_hit(runners, pitch_index, batter_id, event_type):
+    base_dict = {
+        "1B": 1,
+        "2B": 2,
+        "3B": 3,
+        "score": 4
+    }
+    pickoff_out = False
+    is_hit = False
+    bases = 0
+
+    for runner in runners:
+        details = runner.get("details",{})
+        movement = runner.get("movement",{})
+        play_index = details.get("playIndex")
+        is_out = movement.get("isOut")
+        if play_index!=pitch_index and is_out:
+            pickoff_out = True
+        if details.get("runner",{}).get("id")==batter_id and movement.get("start") is None:
+            batter_end = movement.get("end")
+            if is_out==False and event_type!="field_error" and "fielders_choice" not in event_type:
+                is_hit = True
+                bases = base_dict[batter_end]
+            break
+
+    return pickoff_out, is_hit, bases
+
+def parse_plays(plays,gamePk):
     results = []
+
     
     for play in plays:
 
@@ -57,6 +120,10 @@ def parse_plays(plays):
         result = play.get("result")
         last_pitch = play.get("playEvents",[{}])[-1]
         pitch_index = play.get("pitchIndex",[-1])
+        if len(pitch_index)==0:
+            pitch_index = -1
+        else:
+            pitch_index = pitch_index[-1]
         runners = play.get("runners",[])
         description = result.get("description","")
         hit_data = last_pitch.get("hitData",{})
@@ -86,11 +153,11 @@ def parse_plays(plays):
         # play data
         outs = sum([True if runner.get("movement",{}).get("isOut") else False for runner in runners])
         earned_runs = det_earned_runs(runners, pitcher_id, results)
-        is_hit = False
-        bases = 0
         
         if not is_in_play:
             location,launch_speed,launch_angle,total_distance,trajectory,hardness,coord_x,coord_y,first_base_runner,second_base_runner,third_base_runner,fielder,fielder_id,outer,outer_id,errer,errer_id,out,pickoff_out = [None] * 19
+            is_hit = False
+            bases = 0
             
         else:
             launch_speed = hit_data.get("launchSpeed")
@@ -101,48 +168,11 @@ def parse_plays(plays):
             coordinates = hit_data.get("coordinates", {})
             coord_x = coordinates.get("coordX")
             coord_y = coordinates.get("coordY")
-            out = False
-            pickoff_out = False
 
             first_base_runner, second_base_runner, third_base_runner = det_base_runners(runners, batter_id, pitch_index)
+            fielder,fielder_id,errer,errer_id,outer,outer_id,out = process_fielding(runners, has_out, pitch_index)
+            pickoff_out, is_hit, bases = det_is_hit(runners, pitch_index, batter_id, event_type)
 
-            first_runner = None
-            for runner in runners:
-                details = runner.get("details",{})
-                movement = runner.get("movement",{})
-                play_index = details.get("playIndex")
-                is_out = movement.get("isOut")
-                if play_index!=pitch_index[-1]:
-                    pickoff_out = is_out
-                elif first_runner is None: #stop writing -1 everywhere lets just save the last index
-                    first_runner = runner
-                    credits = runner.get("credits",[])
-                    fielder=  None
-                    errer = None
-                    outer = None
-                    fielder_id = None
-                    errer_id = None
-                    outer_id = None
-                    for credit in credits:
-                        credit_type = credit.get("credit","")
-                        position_code = int(credit.get("position",{}).get("code",0))
-                        player_id = credit.get("player",{}).get("id",0)
-                        if "error" in credit_type:
-                            errer = position_code
-                            errer_id = player_id
-                        if fielder is None and credit_type in ["f_assist","f_fielded_ball"]:
-                            fielder = position_code
-                            fielder_id = player_id
-                        elif credit_type=="f_putout":
-                            outer = position_code
-                            outer_id = player_id
-                            out = True
-                if details.get("runner",{}).get("id")==batter_id and movement.get("start") is None:
-                    batter_end = movement.get("end")
-                    if is_out==False and event_type!="field_error" and "fielders_choice" not in event_type:
-                        is_hit = True
-                        bases = {"1B":1,"2B":2,"3B":3, "score":4}[batter_end]
-                    break
 
         if fieldable_play:
             if (fielder is None and errer is not None):
