@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS plate_appearances(
     is_hit BOOLEAN,
     bases INTEGER,
     gamepk BIGINT,
-    game_date DATE
+    FOREIGN KEY gamepk REFERENCES game_catalog(gamepk)
 );
 
 CREATE TABLE IF NOT EXISTS pitcher_innings(
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS pitcher_innings(
     earned_runs INTEGER,
     outs INTEGER,
     gamepk BIGINT,
-    game_date DATE
+    FOREIGN KEY gamepk REFERENCES game_catalog(gamepk)
 );
 
 CREATE TYPE status_enum AS ENUM ('NEW', 'PROCESSED', 'FAILED');
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS game_catalog(
 );
 
 CREATE TABLE IF NOT EXISTS game_features(
-    gamepk BIGINT PRIMARY KEY,
+    gamepk BIGINT PRIMARY KEY REFERENCES game_catalog(gamepk),
     away_pitcher_era DOUBLE PRECISION,
     away_pitcher_whip DOUBLE PRECISION,
     home_pitcher_era DOUBLE PRECISION,
@@ -63,6 +63,36 @@ CREATE TABLE IF NOT EXISTS game_features(
 );
 
 CREATE TABLE IF NOT EXISTS game_labels(
-    gamepk BIGINT PRIMARY KEY,
+    gamepk BIGINT PRIMARY KEY REFERENCES game_catalog(gamepk),
     label BOOLEAN
 );
+
+CREATE TYPE outs_enum AS ENUM ('0','1','2');
+
+CREATE TABLE IF NOT EXISTS fieldable_plays(
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    gamepk BIGINT,
+    launch_speed DOUBLE PRECISION,
+    launch_angle DOUBLE PRECISION,
+    total_distance DOUBLE PRECISION,
+    trajectory VARCHAR(255),
+    hardness VARCHAR(255),
+    hit_location INTEGER,
+    coord_x DOUBLE PRECISION,
+    coord_y DOUBLE PRECISION,
+    fielder INTEGER,
+    fielder_id BIGINT,
+    putouter INTEGER,
+    putouter_id BIGINT,
+    errer INTEGER,
+    errer_id BIGINT,
+    made_out BOOLEAN,
+    pickoff_out BOOLEAN,
+    has_out BOOLEAN,
+    has_score BOOLEAN,
+    first_base_runner BOOLEAN,
+    second_base_runner BOOLEAN,
+    third_base_runner BOOLEAN,
+    num_outs outs_enum,
+    FOREIGN KEY gamepk REFERENCES game_catalog(gamepk)
+)
