@@ -197,7 +197,7 @@ def parse_plays(plays,gamePk):
             "trajectory":trajectory,
             "hardness":hardness,
             "total_distance":total_distance,
-            "location":location,
+            "hit_location":location,
             "coord_x":coord_x,
             "coord_y":coord_y,
             "first_base_runner":first_base_runner,
@@ -207,11 +207,11 @@ def parse_plays(plays,gamePk):
             "bases":bases,
             "fielder":fielder,
             "fielder_id":fielder_id,
-            "outer":outer,
-            "outer_id":outer_id,
+            "putouter":outer,
+            "putouter_id":outer_id,
             "errer":errer,
             "errer_id":errer_id,
-            "out":out,
+            "in_play_out":out,
             "pickoff_out":pickoff_out
         })
     return results

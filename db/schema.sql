@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS fieldable_plays(
     putouter_id BIGINT,
     errer INTEGER,
     errer_id BIGINT,
-    made_out BOOLEAN,
+    in_play_out BOOLEAN,
     pickoff_out BOOLEAN,
     has_out BOOLEAN,
     has_score BOOLEAN,

@@ -26,9 +26,9 @@ def transform_game(filepath: Path):
     #filepath should be 'gameData_{gamePk}.json'
     gamePk = int(filename.replace(".json","").replace("gameData_",""))
 
-    pa_df = builder_plate_appearances(parsed_plays, gamePk, date)
-    pi_df = builder_pitcher_innings(parsed_plays, gamePk, date)
-    fp_df = builder_fieldable_plays(parsed_plays, gamePk, date)
+    pa_df = builder_plate_appearances(parsed_plays, gamePk)
+    pi_df = builder_pitcher_innings(parsed_plays, gamePk)
+    fp_df = builder_fieldable_plays(parsed_plays, gamePk)
 
     pi_filepath = CLEAN_DATA_DIR / filename.replace(".json","_pitcher_innings.parquet")
     pa_filepath = CLEAN_DATA_DIR / filename.replace(".json","_plate_appearances.parquet")
