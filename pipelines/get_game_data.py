@@ -5,16 +5,18 @@ from etl.extract.fetch_game import fetch_game
 from etl.transform.transform_game import transform_game
 from etl.load.load_plate_appearances import load_plate_appearances
 from etl.load.load_pitcher_innings import load_pitcher_innings
+from etl.load.load_fieldable_plays import load_fieldable_plays
 
 def get_game_data(gamePk: int):
 
     try:
         raw_filepath = fetch_game(gamePk)
 
-        pi_filepath, pa_filepath = transform_game(raw_filepath)
+        pi_filepath, pa_filepath, fp_filepath = transform_game(raw_filepath)
 
         load_plate_appearances(pa_filepath, engine)
         load_pitcher_innings(pi_filepath, engine)
+        load_fieldable_plays(fp_filepath, engine)
 
         return (gamePk, "OK")
     except Exception as e:
