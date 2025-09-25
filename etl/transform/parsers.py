@@ -108,6 +108,20 @@ def det_is_hit(runners, pitch_index, batter_id, event_type):
 
     return pickoff_out, is_hit, bases
 
+def det_responsibility(out, fielder, location, fielder_id, errer_id, putouter_id):
+    if fielder!=location:
+        return None
+    if out:
+        if fielder is None:
+            return putouter_id
+        else:
+            return fielder_id
+    else:
+        if errer_id is not None:
+            return errer_id
+        else:
+            return fielder_id
+
 def parse_plays(plays,gamePk):
     results = []
 
@@ -178,6 +192,10 @@ def parse_plays(plays,gamePk):
             if (fielder is None and errer is not None):
                 fielder = errer
                 fielder_id = errer_id
+            responsibility = det_responsibility(out,fielder,location,fielder_id,errer_id,outer_id)
+        else:
+            responsibility = None
+
         results.append({
             "batter_id": batter_id,
             "pitcher_id": pitcher_id,
@@ -212,6 +230,7 @@ def parse_plays(plays,gamePk):
             "errer":errer,
             "errer_id":errer_id,
             "in_play_out":out,
-            "pickoff_out":pickoff_out
+            "pickoff_out":pickoff_out,
+            "responsibility": responsibility
         })
     return results
