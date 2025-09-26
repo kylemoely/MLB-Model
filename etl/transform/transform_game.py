@@ -19,7 +19,6 @@ def transform_game(filepath: Path):
         
     filename = filepath.name
 
-    date = game.get("gameData",{}).get("datetime",{}).get("officialDate")
     plays = game["liveData"]["plays"]["allPlays"]
     parsed_plays = parse_plays(plays)
 
