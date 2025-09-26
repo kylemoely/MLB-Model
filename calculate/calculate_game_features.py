@@ -1,11 +1,21 @@
-from .calculators import calculate_AVG, calculate_ERA, calculate_OPS, calculate_WHIP
-from .queries import get_batter_df, get_pitcher_df
+from .calculators import calculate_AVG, calculate_ERA, calculate_OPS, calculate_WHIP, calculate_OAA, calculate_DRS
+from .queries import get_batter_df, get_pitcher_df, get_fielder_df
+import pandas as pd
+
+def calculate_defense_features(fielders):
+    fielder_dfs = [get_fielder_df(fielder) for fielder in fielders]
+    team_df = pd.concat(fielder_dfs,ignore_index=True)
+    oaa = calculate_OAA(team_df)
+    drs = calculate_DRS(team_df)
+
+    return oaa, drs
+
 
 def calculate_game_features(game, gamePk, engine, home_pitcher_id=None, away_pitcher_id=None):
     gameData = game.get("gameData", {})
     game_date = gameData.get("datetime", {}).get("officialDate")
     if game_date is None:
-        raise ValueError(f"Cannot find game_date for game {gamePk}.")
+        raise AttributeError("Cannot find game_date.")
     
     features = []
     
@@ -19,14 +29,40 @@ def calculate_game_features(game, gamePk, engine, home_pitcher_id=None, away_pit
             if play.get("halfInning")=="bottom":
                 away_pitcher_id = play.get("matchup",{}).get("pitcher",{}).get("id")
                 break
-    if away_pitcher_id is None or home_pitcher_id is None:
-        raise ValueError("pitcher_ids not found.")
+    if away_pitcher_id is None:
+        raise AttributeError("Cannot find away pitcher's id.")
+    if home_pitcher_id is None:
+        raise AttributeError("Cannot find home pitcher's id.")
         
     boxscore_teams = game.get("liveData",{}).get("boxscore",{}).get("teams")
-    away_batters = boxscore_teams.get("away",{}).get("battingOrder")
-    home_batters = boxscore_teams.get("home",{}).get("battingOrder")
-    if home_batters is None or away_batters is None:
-        raise ValueError("batter_ids not found.")
+    away = boxscore_teams.get("away",{})
+    home = boxscore_teams.get("home",{})
+    away_batters = away.get("battingOrder")
+    home_batters = home.get("battingOrder")
+    if home_batters is None or len(home_batters)==0:
+        raise AttributeError("Cannot find batting order for home team.")
+    if away_batters is None:
+        raise AttributeError("Cannot find batting order for away team.")
+    
+    away_players = away.get("players")
+    home_players = home.get("players")
+    if away_players is None or len(away_players)==0:
+        raise AttributeError("Cannot find player information for away team.")
+    if home_players is None or len(home_players)==0:
+        raise AttributeError("Cannot find player information for home team.")
+    away_fielders = []
+    home_fielders = []
+    for batter in away_batters:
+        player = away_players.get(f"ID{batter}")
+        if player.get("position",{}).get("abbreviation")!="DH":
+            away_fielders.append(batter)
+    for batter in home_batters:
+        player = home_players.get(f"ID{batter}")
+        if player.get("position",{}).get("abbreviation")!="DH":
+            home_fielders.append(batter)
+    away_fielders.append(away_pitcher_id)
+    home_fielders.append(home_pitcher_id)
+    
     away_batters = away_batters[:5]
     home_batters = home_batters[:5]
 
@@ -44,5 +80,9 @@ def calculate_game_features(game, gamePk, engine, home_pitcher_id=None, away_pit
             avg = calculate_AVG(batter_df)
             
             features += [ops, avg]
+
+    away_OAA, away_DRS = calculate_defense_features(away_fielders)
+    home_OAA, home_DRS = calculate_defense_features(home_fielders)
+    features += [away_OAA,away_DRS,home_OAA,home_DRS]
 
     return features
