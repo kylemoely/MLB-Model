@@ -40,7 +40,7 @@ def builder_pitcher_innings(plays,gamePk):
     df["gamepk"] = gamePk
 
     return df
-def builder_fieldable_plays(plays,gamePk,date):
+def builder_fieldable_plays(plays,gamePk):
     columns = ["launch_speed","launch_angle","total_distance","trajectory","hardness","hit_location","coord_x","coord_y","fielder","fielder_id","putouter","putouter_id", "errer","errer_id","in_play_out","pickoff_out","has_out","has_score","first_base_runner","second_base_runner","third_base_runner","num_outs", "responsibility"]
     records = []
     for play in plays:
