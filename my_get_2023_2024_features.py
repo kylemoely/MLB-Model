@@ -6,7 +6,7 @@ from traceback import format_exc
 
 def run_batch(gamePks): 
     game_features_list = [] 
-    game_feature_columns = ["gamepk", "away_pitcher_era","away_pitcher_whip","home_pitcher_era","home_pitcher_whip","away_batter1_ops","away_batter1_avg","away_batter2_ops","away_batter2_avg","away_batter3_ops","away_batter3_avg","away_batter4_ops","away_batter4_avg","away_batter5_ops","away_batter5_avg","home_batter1_ops","home_batter1_avg","home_batter2_ops","home_batter2_avg","home_batter3_ops","home_batter3_avg","home_batter4_ops","home_batter4_avg","home_batter5_ops","home_batter5_avg"]
+    game_feature_columns = ["gamepk", "away_pitcher_era","away_pitcher_whip","home_pitcher_era","home_pitcher_whip","away_batter1_ops","away_batter1_avg","away_batter2_ops","away_batter2_avg","away_batter3_ops","away_batter3_avg","away_batter4_ops","away_batter4_avg","away_batter5_ops","away_batter5_avg","home_batter1_ops","home_batter1_avg","home_batter2_ops","home_batter2_avg","home_batter3_ops","home_batter3_avg","home_batter4_ops","home_batter4_avg","home_batter5_ops","home_batter5_avg","away_OAA","away_DRS","home_OAA","home_DRS"]
     print(f"Starting with game {list(gamePks)[0]}!")
     for gamePk in gamePks: 
         try: 
