@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS game_features(
     away_batter3_avg DOUBLE PRECISION,
     away_batter4_ops DOUBLE PRECISION,
     away_batter4_avg DOUBLE PRECISION,
-    away_batter5_ops DOUBLE PRECISION,
+    away_batter5_ops DOUBLE PRECISION,  
     away_batter5_avg DOUBLE PRECISION,
     home_batter1_ops DOUBLE PRECISION,
     home_batter1_avg DOUBLE PRECISION,
@@ -59,7 +59,11 @@ CREATE TABLE IF NOT EXISTS game_features(
     home_batter4_ops DOUBLE PRECISION,
     home_batter4_avg DOUBLE PRECISION,
     home_batter5_ops DOUBLE PRECISION,
-    home_batter5_avg DOUBLE PRECISION
+    home_batter5_avg DOUBLE PRECISION,
+    away_oaa DOUBLE PRECISION,
+    away_drs DOUBLE PRECISION,
+    home_oaa DOUBLE PRECISION,
+    away_drs DOUBLE PRECISION
 );
 
 CREATE TABLE IF NOT EXISTS game_labels(
@@ -94,5 +98,7 @@ CREATE TABLE IF NOT EXISTS fieldable_plays(
     second_base_runner BOOLEAN,
     third_base_runner BOOLEAN,
     num_outs outs_enum,
+    p_out DOUBLE PRECISION,
+    p_run DOUBLE PRECISION,
     FOREIGN KEY gamepk REFERENCES game_catalog(gamepk)
 )
