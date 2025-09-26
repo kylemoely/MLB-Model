@@ -49,3 +49,13 @@ def calculate_WHIP(df):
             return None
 
     return (hits + walks) / innings
+
+def calculate_OAA(df):
+    oaa = sum(np.where(df["in_play_out"],1 - df["p_out"], -df["p_out"]))
+
+    return oaa
+
+def calculate_DRS(df):
+    drs = sum(np.where(df["has_score"],-df["p_run"],1 - df["p_run"]))
+
+    return drs
