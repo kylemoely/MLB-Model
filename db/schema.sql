@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS plate_appearances(
     is_hit BOOLEAN,
     bases INTEGER,
     gamepk BIGINT,
-    FOREIGN KEY gamepk REFERENCES game_catalog(gamepk)
+    FOREIGN KEY (gamepk) REFERENCES game_catalog(gamepk)
 );
 
 CREATE TABLE IF NOT EXISTS pitcher_innings(
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS pitcher_innings(
     earned_runs INTEGER,
     outs INTEGER,
     gamepk BIGINT,
-    FOREIGN KEY gamepk REFERENCES game_catalog(gamepk)
+    FOREIGN KEY (gamepk) REFERENCES game_catalog(gamepk)
 );
 
 CREATE TYPE status_enum AS ENUM ('NEW', 'PROCESSED', 'FAILED');
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS game_features(
     away_oaa DOUBLE PRECISION,
     away_drs DOUBLE PRECISION,
     home_oaa DOUBLE PRECISION,
-    away_drs DOUBLE PRECISION
+    home_drs DOUBLE PRECISION
 );
 
 CREATE TABLE IF NOT EXISTS game_labels(
@@ -100,5 +100,5 @@ CREATE TABLE IF NOT EXISTS fieldable_plays(
     num_outs outs_enum,
     p_out DOUBLE PRECISION,
     p_run DOUBLE PRECISION,
-    FOREIGN KEY gamepk REFERENCES game_catalog(gamepk)
+    FOREIGN KEY (gamepk) REFERENCES game_catalog(gamepk)
 )
