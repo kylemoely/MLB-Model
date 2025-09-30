@@ -122,7 +122,7 @@ def det_responsibility(out, fielder, location, fielder_id, errer_id, putouter_id
         else:
             return fielder_id
 
-def parse_plays(plays,gamePk):
+def parse_plays(plays):
     results = []
 
     
