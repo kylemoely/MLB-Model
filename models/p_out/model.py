@@ -1,5 +1,5 @@
-from train import train_p_out
-from data import preprocess_data, get_data
+from p_out.train import train_p_out
+from p_out.data import preprocess_data, get_data
 from db.db import engine
 from pathlib import Path
 from datetime import datetime

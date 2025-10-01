@@ -1,4 +1,6 @@
-def fill_hit_data_na(df, ref_df):
+def fill_hit_data_na(df, ref_df=None):
+    if ref_df is None:
+        ref_df = df
     angle_means = ref_df.groupby("trajectory")["launch_angle"].mean()
     speed_means = ref_df.groupby("hardness")["launch_speed"].mean()
     distance_means = ref_df.groupby("location")["total_distance"].mean()
