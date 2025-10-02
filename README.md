@@ -21,14 +21,23 @@ The work highlights not only predictive modeling but also the **engineering rigo
 
 MLB-Model/
 ├── calculate/ # Custom baseball metrics (ERA, WHIP, OAA, etc.)
+
 ├── db/ # Database connection helpers & SQL schema utilities
+
 ├── etl/ # ETL workflows for ingesting and cleaning raw MLB data
+
 ├── models/ # Training, saving, loading, and calibration of ML models
+
 ├── pipelines/ # Orchestrated workflows for training, scoring, and backtesting
+
 ├── utils/ # Logging, configuration, validation, and shared utilities
+
 ├── get_2021-2024.py # Multi-season ingestion example
+
 ├── get_2023_2024_features.py # Feature set construction
+
 ├── get_2023_2024_labels.py # Label construction for targets
+
 └── README.md
 
 
