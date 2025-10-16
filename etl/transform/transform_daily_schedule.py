@@ -12,7 +12,7 @@ def transform_daily_schedule(filepath):
         date = item.get("date")
         for game in item.get("games",[]):
             gamePk = game.get("gamePk")
-            gamePks.append({"gamePk":gamePk,"date":date})
+            gamePks.append({"gamepk":gamePk,"game_date":date})
     parq_filepath = filepath.replace(".json",".parquet")
 
     df = pd.DataFrame(gamePks)
