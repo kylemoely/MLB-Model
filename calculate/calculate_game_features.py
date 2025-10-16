@@ -12,7 +12,7 @@ def calculate_defense_features(fielders, game_date, engine):
     return oaa, drs
 
 
-def calculate_game_features(game, gamePk, engine, home_pitcher_id=None, away_pitcher_id=None):
+def calculate_game_features(game, gamePk, engine):
     gameData = game.get("gameData", {})
     game_date = gameData.get("datetime", {}).get("officialDate")
     if game_date is None:
