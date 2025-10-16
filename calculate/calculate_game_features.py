@@ -2,8 +2,9 @@ from .calculators import calculate_AVG, calculate_ERA, calculate_OPS, calculate_
 from .queries import get_batter_df, get_pitcher_df, get_fielder_df
 import pandas as pd
 
-def calculate_defense_features(fielders):
-    fielder_dfs = [get_fielder_df(fielder) for fielder in fielders]
+def calculate_defense_features(fielders, game_date, engine):
+    fielder_dfs = [get_fielder_df(fielder, game_date, engine) for fielder in fielders]
+    fielder_dfs = [df for df in fielder_dfs if not df.empty and not df.isna().all().all()]
     team_df = pd.concat(fielder_dfs,ignore_index=True)
     oaa = calculate_OAA(team_df)
     drs = calculate_DRS(team_df)
@@ -81,8 +82,8 @@ def calculate_game_features(game, gamePk, engine, home_pitcher_id=None, away_pit
             
             features += [ops, avg]
 
-    away_OAA, away_DRS = calculate_defense_features(away_fielders)
-    home_OAA, home_DRS = calculate_defense_features(home_fielders)
+    away_OAA, away_DRS = calculate_defense_features(away_fielders, game_date, engine)
+    home_OAA, home_DRS = calculate_defense_features(home_fielders, game_date, engine)
     features += [away_OAA,away_DRS,home_OAA,home_DRS]
 
     return features

@@ -23,9 +23,9 @@ DATA_DIR = Path(os.getenv("DATA_DIR"))
 def write_game_catalog(years):
     games = []
     for year in years:
+        print(f"Starting {year}")
         gamePks = get_game_list(year)
         for gamePk in gamePks:
-            print(gamePk)
             game = statsapi.get("game", params={"gamePk":gamePk})
             date = game.get("gameData",{}).get("datetime",{}).get("officialDate")
             if date is None:
@@ -41,20 +41,24 @@ def fill_na():
         df = pd.read_sql(query, conn)
 
         df = fill_hit_data_na(df)
-        updates = df[["launch_angle","launch_speed","total_distance"]]
+        updates = df[["id","launch_angle","launch_speed","total_distance"]]
 
         updates.to_sql("_fieldable_plays_updates",conn,if_exists="replace",index=False)
 
         conn.execute(text("""
-            INSERT INTO fieldable_plays (id, launch_angle, launch_speed, total_distance)
-            SELECT id, launch_angle, launch_speed, total_distance FROM _fieldable_plays_updates
-            ON CONFLICT (id) DO UPDATE
-            SET launch_angle = EXCLUDED.launch_angle,
-                launch_speed = EXCLUDED.launch_speed,
-                total_distance = EXCLUDED.total_distance;
+            UPDATE fieldable_plays f
+            SET
+              launch_angle   = COALESCE(u.launch_angle,   f.launch_angle),
+              launch_speed   = COALESCE(u.launch_speed,   f.launch_speed),
+              total_distance = COALESCE(u.total_distance, f.total_distance)
+            FROM _fieldable_plays_updates u
+            WHERE u.id = f.id
+              AND (u.launch_angle IS NOT NULL
+                   OR u.launch_speed IS NOT NULL
+                   OR u.total_distance IS NOT NULL);
         """))
 
-        conn.execute(text("DROP TABLE _fieldable_plays_updates"))
+        conn.execute(text("DROP TABLE _fieldable_plays_updates;"))
 
 def get_games(years):
     for year in years:
@@ -71,10 +75,12 @@ def train_models():
 
 def get_features(years):
     game_features_list = []
-    game_feature_columns = ["gamepk", "away_pitcher_era","away_pitcher_whip","home_pitcher_era","home_pitcher_whip","away_batter1_ops","away_batter1_avg","away_batter2_ops","away_batter2_avg","away_batter3_ops","away_batter3_avg","away_batter4_ops","away_batter4_avg","away_batter5_ops","away_batter5_avg","home_batter1_ops","home_batter1_avg","home_batter2_ops","home_batter2_avg","home_batter3_ops","home_batter3_avg","home_batter4_ops","home_batter4_avg","home_batter5_ops","home_batter5_avg","away_OAA","away_DRS","home_OAA","home_DRS"]
+    game_feature_columns = ["gamepk", "away_pitcher_era","away_pitcher_whip","home_pitcher_era","home_pitcher_whip","away_batter1_ops","away_batter1_avg","away_batter2_ops","away_batter2_avg","away_batter3_ops","away_batter3_avg","away_batter4_ops","away_batter4_avg","away_batter5_ops","away_batter5_avg","home_batter1_ops","home_batter1_avg","home_batter2_ops","home_batter2_avg","home_batter3_ops","home_batter3_avg","home_batter4_ops","home_batter4_avg","home_batter5_ops","home_batter5_avg","away_oaa","away_drs","home_oaa","home_drs"]
     for year in years:
         gamePks = get_game_list(year)
         for gamePk in gamePks:
+            if len(game_features_list) % 100 == 0:
+                print(f"{len(game_features_list)} games processed.")
             try:
                 with open(DATA_DIR / "raw" / f"gameData_{gamePk}.json") as f:
                     game = json.load(f)
@@ -121,12 +127,19 @@ def get_labels(years):
 
 
 def main():
-    write_game_catalog([2021,2022,2023,2024])
-    get_games([2021,2022])
-    train_models()
-    get_games([2023,2024])
-    write_p_out_p_run()
+    # print("Writing game catalog")
+    # write_game_catalog([2021,2022,2023,2024])
+    # print("Getting 2021 and 2022 games")
+    # get_games([2021,2022])
+    # print("Training p_out and p_run")
+    # train_models()
+    # print("Getting 2023 and 2024 games")
+    # get_games([2023,2024])
+    # print("Writing p_out and p_run stats")
+    # write_p_out_p_run()
+    print("Calculating game features")
     get_features([2023,2024])
+    print("Calculating game labels")
     get_labels([2023,2024])
 
 if __name__ == "__main__":

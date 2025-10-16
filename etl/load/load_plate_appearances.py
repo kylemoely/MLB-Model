@@ -9,4 +9,4 @@ def load_plate_appearances(filepath, engine):
 
     df.to_sql("plate_appearances", engine, if_exists="append",index=False)
 
-    print("Plate appearances successfully loaded.")
+    #print("Plate appearances successfully loaded.")

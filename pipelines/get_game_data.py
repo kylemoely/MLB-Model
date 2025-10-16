@@ -6,6 +6,7 @@ from etl.transform.transform_game import transform_game
 from etl.load.load_plate_appearances import load_plate_appearances
 from etl.load.load_pitcher_innings import load_pitcher_innings
 from etl.load.load_fieldable_plays import load_fieldable_plays
+from sqlalchemy import text
 
 def get_game_data(gamePk: int):
 
@@ -17,6 +18,9 @@ def get_game_data(gamePk: int):
         load_plate_appearances(pa_filepath, engine)
         load_pitcher_innings(pi_filepath, engine)
         load_fieldable_plays(fp_filepath, engine)
+
+        with engine.begin() as conn:
+            conn.execute(text(f"UPDATE game_catalog SET status = 'PROCESSED' WHERE gamepk = {gamePk};"))
 
         return (gamePk, "OK")
     except Exception as e:

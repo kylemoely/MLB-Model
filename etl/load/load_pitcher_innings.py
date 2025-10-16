@@ -9,4 +9,4 @@ def load_pitcher_innings(filepath, engine):
 
     df.to_sql("pitcher_innings",engine, if_exists="append", index=False)
 
-    print("Pitcher innings successfully loaded.")
+    #print("Pitcher innings successfully loaded.")

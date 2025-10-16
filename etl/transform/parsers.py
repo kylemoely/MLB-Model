@@ -189,9 +189,13 @@ def parse_plays(plays):
 
 
         if fieldable_play:
-            if (fielder is None and errer is not None):
-                fielder = errer
-                fielder_id = errer_id
+            if fielder is None:
+                if errer is not None:
+                    fielder = errer
+                    fielder_id = errer_id
+                elif outer is not None:
+                    fielder = outer
+                    fielder_id = outer_id
             responsibility = det_responsibility(out,fielder,location,fielder_id,errer_id,outer_id)
         else:
             responsibility = None

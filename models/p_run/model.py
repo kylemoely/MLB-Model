@@ -1,5 +1,5 @@
-from p_run.train import train_p_run
-from p_run.data import preprocess_data, get_data
+from models.p_run.train import train_p_run
+from models.p_run.data import preprocess_data, get_data
 from db.db import engine
 from pathlib import Path
 from datetime import datetime
@@ -15,7 +15,9 @@ def save_model(start_date, end_date):
 
     p_run = train_p_run(train_data,test_data)
 
-    model_path = artifacts / datetime.now().strftime("%Y-%m-%d") / "model.txt"
+    date_folder = artifacts / datetime.now().strftime("%Y-%m-%d")
+    date_folder.mkdir(exist_ok=True)
+    model_path = date_folder / "model.txt"
 
     p_run.save_model(str(model_path))
 
@@ -27,7 +29,7 @@ def get_model(training_date=None):
         if not model_file.exists():
             raise Exception(f"No model found at {str(model_file)}")
     else:
-        training_dates = [(datetime.strptime(f.name,"%Y-%m-%d"),f) for f in artifacts.iterdir() if f.is_dir()]
+        training_dates = [(datetime.strptime(f.name,"%Y-%m-%d"),f / "model.txt") for f in artifacts.iterdir() if f.is_dir()]
         if len(training_dates)==0:
             raise Exception(f"No models found")
         model_file = max(training_dates, key=lambda x:x[0])[1]

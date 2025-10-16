@@ -1,3 +1,4 @@
+import numpy as np
 def calculate_OPS(df):
     at_bats = df["is_at_bat"].sum()
     walks = df["is_walk"].sum()

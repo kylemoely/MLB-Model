@@ -5,16 +5,14 @@ import tensorflow as tf
 from tensorflow.keras import layers, models
 import numpy as np
 
-def train_model():
-    features_df = pd.read_excel("C:/Users/Kyle/Desktop/Projects/MLB Stats/df_features.xlsx")
-    labels_df = pd.read_excel("C:/Users/Kyle/Desktop/Projects/MLB Stats/df_labels.xlsx")
+def train_model(features_df, labels_df):
 
     df = features_df.merge(labels_df, on="gamepk", how="inner").copy()
     df['label'] = df['label'].astype(int)
     def row_to_sequence(row):
         away_matchups = [[row[f"away_batter{i}_ops"],row[f"away_batter{i}_avg"],row["home_pitcher_era"],row["home_pitcher_whip"]] for i in range(1,6)]
         home_matchups = [[row[f"away_batter{i}_ops"],row[f"away_batter{i}_avg"],row["home_pitcher_era"],row["home_pitcher_whip"]] for i in range(1,6)]
-        return np.array(away_matchups + home_matchups, dtype=float) 
+        return np.array(away_matchups + home_matchups, dtype=float)
         
     X = df.drop(columns=["Unnamed: 0_x","gamepk","Unnamed: 0_y","label"])
     X = X.fillna(X.median(numeric_only=True))
