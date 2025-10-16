@@ -1,0 +1,27 @@
+import pandas as pd
+from db.db import engine
+from pipelines.get_game_data import get_game_data
+from dotenv import load_dotenv
+import os
+import json
+from pathlib import Path
+from datetime import datetime
+
+load_dotenv()
+
+DATA_DIR = Path(os.getenv("DATA_DIR"))
+DIR = DATA_DIR / "daily_game_datas"
+
+def get_game_datas_daily():
+	try:
+		df = pd.read_sql("SELECT gamepk FROM game_catalog WHERE status = 'NEW'", engine)
+		gamepks = df["gamepk"].values
+		results = [get_game_data(gamepk) for gamepk in gamepks]
+
+		with open(DIR / f"results_{datetime.now().strftime('%Y-%m-%d')}.json", "w") as f:
+			json.dump(results, f, indent=4)
+	except Exception as e:
+		print(f"Error trying to get daily game_datas: {e}")
+
+if __name__ == "__main__":
+	get_game_datas_daily()
