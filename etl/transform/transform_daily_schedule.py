@@ -1,9 +1,16 @@
 import pandas as pd
 import json
 import argparse
+import s3fs
+
+fs = s3fs.S3FileSystem()
 
 def transform_daily_schedule(filepath):
-    with open(filepath, "r") as f:
+    ### Local Dev
+    # with open(filepath, "r") as f:
+    #     schedule = json.load(f)
+    ### AWS Dev
+    with fs.open(filepath, "r") as f:
         schedule = json.load(f)
 
     gamePks = []
