@@ -1,7 +1,6 @@
 from models.p_out.train import train_p_out
 from models.p_out.data import preprocess_data, get_data
 from db.db import engine
-from pathlib import Path
 from datetime import datetime
 import lightgbm as lgb
 from dotenv import load_dotenv
