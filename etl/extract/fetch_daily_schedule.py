@@ -3,10 +3,9 @@ import json
 import argparse
 from dotenv import load_dotenv
 import os
-from pathlib import Path
 
 load_dotenv()
-DATA_DIR = Path(os.getenv("DATA_DIR"))
+DATA_DIR = os.getenv("DATA_DIR").rstrip("/")
 
 ### AWS Dev
 import s3fs
@@ -14,7 +13,7 @@ fs = s3fs.S3FileSystem()
 
 def fetch_daily_schedule(date):
     schedule = statsapi.get("schedule", params={"sportId":1, "startDate": date, "endDate":date})
-    filepath = str(DATA_DIR / f"raw/daily-schedules/schedule_{date}.json")
+    filepath = f"{DATA_DIR}/raw/daily-schedules/schedule_{date}.json"
     ### Local Dev
     # with open(filepath, "w", encoding="utf-8") as f:
     #     json.dump(schedule, f, indent=4)
