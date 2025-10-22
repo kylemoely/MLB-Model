@@ -5,17 +5,21 @@ from .parsers import parse_plays
 import argparse
 from dotenv import load_dotenv
 import os
+import s3fs
 
 load_dotenv()
+fs = s3fs.S3FileSystem()
 
 DATA_DIR = Path(os.getenv("DATA_DIR"))
 CLEAN_DATA_DIR = DATA_DIR / "clean"
 
-def transform_game(filepath: Path):
-
-    with open(filepath, "r") as f:
+def transform_game(filepath):
+    ### Local Dev
+    # with open(filepath, "r") as f:
+    #     game = json.load(f)
+    ### AWS Dev
+    with fs.open(filepath) as f:
         game = json.load(f)
-    #prolly check for some errors here but we'll do that later
         
     filename = filepath.name
 
@@ -29,9 +33,9 @@ def transform_game(filepath: Path):
     pi_df = builder_pitcher_innings(parsed_plays, gamePk)
     fp_df = builder_fieldable_plays(parsed_plays, gamePk)
 
-    pi_filepath = CLEAN_DATA_DIR / filename.replace(".json","_pitcher_innings.parquet")
-    pa_filepath = CLEAN_DATA_DIR / filename.replace(".json","_plate_appearances.parquet")
-    fp_filepath = CLEAN_DATA_DIR / filename.replace(".json","_fieldable_plays.parquet")
+    pi_filepath = str(CLEAN_DATA_DIR / filename.replace(".json","_pitcher_innings.parquet"))
+    pa_filepath = str(CLEAN_DATA_DIR / filename.replace(".json","_plate_appearances.parquet"))
+    fp_filepath = str(CLEAN_DATA_DIR / filename.replace(".json","_fieldable_plays.parquet"))
 
     pa_df.to_parquet(pa_filepath, index=False)
     pi_df.to_parquet(pi_filepath, index=False)
@@ -46,7 +50,7 @@ def main():
     parser.add_argument("--filepath", required=True, help="Filepath where raw json is.")
     args = parser.parse_args()
 
-    transform_game(Path(args.filepath))
+    transform_game(args.filepath)
 
 if __name__ == "__main__":
     main()
