@@ -1,6 +1,5 @@
 import statsapi
 import json
-from pathlib import Path
 import argparse
 from dotenv import load_dotenv
 import os
@@ -9,13 +8,13 @@ import s3fs
 load_dotenv()
 fs = s3fs.S3FileSystem()
 
-DATA_DIR = Path(os.getenv("DATA_DIR"))
-RAW_DATA_DIR = DATA_DIR / "raw/game-datas"
+DATA_DIR = os.getenv("DATA_DIR").rstrip("/")
+RAW_DATA_DIR = f"{DATA_DIR}/raw/game-datas"
 
 def fetch_game(gamePk: int) -> Path:
 
     game = statsapi.get("game", params={"gamePk":gamePk})
-    filepath = str(RAW_DATA_DIR / f"gameData_{gamePk}.json")
+    filepath = f"{RAW_DATA_DIR}/gameData_{gamePk}.json"
     ### Local Dev
     # with open(filepath, "w", encoding="utf-8") as f:
     #     json.dump(game, f, indent=4)
