@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 import pandas as pd
 
-DATA_DIR = Path(os.getenv("DATA_DIR")) / "raw"
+DATA_DIR = f"{os.getenv('DATA_DIR').rstrip('/'}/raw"
 
 def get_game_features_daily():
     try:
@@ -18,7 +18,7 @@ def get_game_features_daily():
     features = []
     for gamepk in gamepks:
         try:
-            with open(DATA_DIR / f"gameData_{gamepk}.json") as f:
+            with open(f"{DATA_DIR}/gameData_{gamepk}.json") as f:
                 game = json.load(f)
             features.append(calculate_game_features(game,gamepk,engine))
         except Exception as e:
