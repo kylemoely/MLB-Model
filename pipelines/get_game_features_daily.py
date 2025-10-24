@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 import pandas as pd
 
-DATA_DIR = f"{os.getenv('DATA_DIR').rstrip('/'}/raw"
+DATA_DIR = f"{os.getenv('DATA_DIR').rstrip('/')}/raw"
 
 def get_game_features_daily():
     try:
