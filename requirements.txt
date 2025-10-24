@@ -9,7 +9,5 @@ pyarrow==21.0.0
 python-dotenv==1.1.0
 scikit-learn==1.6.1
 SQLAlchemy==2.0.43
-tensorflow==2.19.0
-tensorflow-io-gcs-filesystem==0.31.0
 Werkzeug==3.1.3
 s3fs==2024.3.1
