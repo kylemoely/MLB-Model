@@ -18,7 +18,7 @@ def get_game_features_daily():
     features = []
     for gamepk in gamepks:
         try:
-            with open(f"{DATA_DIR}/gameData_{gamepk}.json") as f:
+            with open(f"{DATA_DIR}/game-datas/gameData_{gamepk}.json") as f:
                 game = json.load(f)
             features.append(calculate_game_features(game,gamepk,engine))
         except Exception as e:
