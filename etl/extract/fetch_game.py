@@ -11,7 +11,7 @@ fs = s3fs.S3FileSystem()
 DATA_DIR = os.getenv("DATA_DIR").rstrip("/")
 RAW_DATA_DIR = f"{DATA_DIR}/raw/game-datas"
 
-def fetch_game(gamePk: int) -> Path:
+def fetch_game(gamePk: int):
 
     game = statsapi.get("game", params={"gamePk":gamePk})
     filepath = f"{RAW_DATA_DIR}/gameData_{gamePk}.json"
