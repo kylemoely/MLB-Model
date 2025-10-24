@@ -6,4 +6,4 @@ COPY . /app
 RUN python3 -m pip install --no-cache-dir -r requirements.txt
 
 ENV PYTHONUNBUFFERED=1
-CMD ["python", "pipelines/daily_runner.py"]
+CMD ["python", "-m", "pipelines.daily_runner"]
