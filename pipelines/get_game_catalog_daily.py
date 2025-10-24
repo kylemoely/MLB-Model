@@ -2,11 +2,13 @@ from db.db import engine
 from etl.extract.fetch_daily_schedule import fetch_daily_schedule
 from etl.transform.transform_daily_schedule import transform_daily_schedule
 from etl.load.load_daily_schedule import load_daily_schedule
-from datetime import datetime
+from datetime import datetime, timedelta
 
 def get_game_catalog_daily():
     try:
-        raw_filepath = fetch_daily_schedule(datetime.now().strftime("%Y-%m-%d"))
+        now = datetime.now()
+        then = now - timedelta(days=211)
+        raw_filepath = fetch_daily_schedule(then.strftime("%Y-%m-%d"))
 
         sched_filepath = transform_daily_schedule(raw_filepath)
 
@@ -16,3 +18,4 @@ def get_game_catalog_daily():
 
 if __name__ == "__main__":
     get_game_catalog_daily()
+
