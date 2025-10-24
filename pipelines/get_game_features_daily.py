@@ -6,6 +6,9 @@ from dotenv import load_dotenv
 import os
 from pathlib import Path
 import pandas as pd
+import s3fs
+
+fs = s3fs.S3FileSystem()
 
 DATA_DIR = f"{os.getenv('DATA_DIR').rstrip('/')}/raw"
 
@@ -18,7 +21,7 @@ def get_game_features_daily():
     features = []
     for gamepk in gamepks:
         try:
-            with open(f"{DATA_DIR}/game-datas/gameData_{gamepk}.json") as f:
+            with fs.open(f"{DATA_DIR}/game-datas/gameData_{gamepk}.json") as f:
                 game = json.load(f)
             features.append(calculate_game_features(game,gamepk,engine))
         except Exception as e:
